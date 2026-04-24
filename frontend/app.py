@@ -89,12 +89,9 @@ def _render_authenticated_sidebar() -> None:
 
 def _render_authenticated_home() -> None:
     user = st.session_state.user or {}
-    st.markdown(
-        f"### Welcome back, {user.get('name', '')}! 👋"
-    )
-    st.markdown(
-        "Use the sidebar to navigate to the **Dashboard**, **Voice Input**, or **Settings**."
-    )
+    first_name = (user.get("name") or "").split(" ")[0] or "there"
+
+    st.markdown(f"### Welcome back, {first_name}! 👋")
 
     # Quick backend health check so users know the API is reachable.
     health = get_api_client().health()
@@ -102,6 +99,27 @@ def _render_authenticated_home() -> None:
         st.error(f"Backend connection issue: {health['error']}")
     else:
         st.success("Connected to the Thought2Do backend.")
+
+    st.markdown("#### What would you like to do?")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown(
+            "**📊 Dashboard**  \n"
+            "Analytics and tasks organised by priority, category, and time."
+        )
+        st.page_link("pages/1_Dashboard.py", label="Open Dashboard", icon="📊")
+    with c2:
+        st.markdown(
+            "**💬 Assistant**  \n"
+            "Type or speak to add, update, delete, or query tasks naturally."
+        )
+        st.page_link("pages/2_Assistant.py", label="Open Assistant", icon="💬")
+    with c3:
+        st.markdown(
+            "**🧪 Demo**  \n"
+            "Watch the agentic pipeline stages fire on a single transcript."
+        )
+        st.page_link("pages/3_Demo.py", label="Open Demo", icon="🧪")
 
 
 def main() -> None:

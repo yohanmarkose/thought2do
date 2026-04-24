@@ -235,4 +235,141 @@ def get_custom_css(theme: Dict[str, str]) -> str:
     .recording-active {{
         animation: pulse-glow 1.4s ease-in-out infinite;
     }}
+
+    /* ---------- Typography ---------- */
+    .stApp h1 {{
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+    }}
+    .stApp h2 {{
+        font-weight: 650;
+        letter-spacing: -0.01em;
+    }}
+    .stApp h3, .stApp h4, .stApp h5 {{
+        font-weight: 600;
+    }}
+
+    /* ---------- Chat empty state ---------- */
+    .chat-empty {{
+        text-align: center;
+        padding: 3rem 1rem;
+        background: {t['secondary_bg']};
+        border: 1px dashed {t['muted']}55;
+        border-radius: 1rem;
+    }}
+    .chat-empty-icon {{
+        font-size: 2.8rem;
+        margin-bottom: 0.75rem;
+    }}
+    .chat-empty-title {{
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: {t['text']};
+        margin-bottom: 0.5rem;
+    }}
+    .chat-empty-sub {{
+        color: {t['muted_text']};
+        font-size: 0.9rem;
+        max-width: 560px;
+        margin: 0 auto;
+        line-height: 1.55;
+    }}
+    .chat-empty-sub em {{
+        color: {t['accent']};
+        font-style: normal;
+        font-weight: 500;
+    }}
+
+    /* ---------- Chat bubble refinement ---------- */
+    [data-testid="stChatMessage"] {{
+        background: {t['card_bg']};
+        border: 1px solid {t['muted']}22;
+        border-radius: 0.9rem;
+        padding: 0.75rem 1rem !important;
+        margin-bottom: 0.6rem;
+    }}
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {{
+        background: {t['accent']}14;
+        border-color: {t['accent']}40;
+    }}
+
+    /* ---------- Metric cards ---------- */
+    [data-testid="stMetric"] {{
+        background: {t['card_bg']};
+        border: 1px solid {t['muted']}22;
+        border-radius: 0.7rem;
+        padding: 0.85rem 1rem;
+        transition: all 0.2s ease;
+    }}
+    [data-testid="stMetric"]:hover {{
+        border-color: {t['accent']}55;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px {t['shadow']};
+    }}
+    [data-testid="stMetricLabel"] {{
+        color: {t['muted_text']} !important;
+        font-size: 0.78rem !important;
+        font-weight: 500 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }}
+    [data-testid="stMetricValue"] {{
+        font-size: 1.7rem !important;
+        font-weight: 700 !important;
+        color: {t['text']} !important;
+    }}
+
+    /* ---------- Dividers ---------- */
+    hr {{
+        border-color: {t['muted']}33 !important;
+        margin: 1rem 0 !important;
+    }}
+
+    /* ---------- Expanders ---------- */
+    [data-testid="stExpander"] details {{
+        background: {t['card_bg']};
+        border: 1px solid {t['muted']}22;
+        border-radius: 0.6rem;
+    }}
+    [data-testid="stExpander"] summary {{
+        font-weight: 500;
+        padding: 0.5rem 0.75rem !important;
+    }}
+
+    /* ---------- Tabs ---------- */
+    .stTabs [data-baseweb="tab-list"] {{
+        background: {t['secondary_bg']};
+        padding: 0.3rem;
+        border-radius: 0.6rem;
+        border-bottom: none;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        background: transparent;
+        padding: 0.5rem 1rem;
+        border-radius: 0.4rem;
+        font-weight: 500;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background: {t['card_bg']};
+        color: {t['accent']} !important;
+        box-shadow: 0 1px 3px {t['shadow']};
+    }}
+
+    /* ---------- Secondary buttons ---------- */
+    .stButton > button[kind="secondary"] {{
+        background: {t['secondary_bg']};
+        color: {t['text']};
+        border: 1px solid {t['muted']}44;
+    }}
+    .stButton > button[kind="secondary"]:hover {{
+        background: {t['card_bg']};
+        border-color: {t['accent']}77;
+        color: {t['accent']};
+    }}
+
+    /* ---------- Task card body cleanup ---------- */
+    .task-card {{
+        margin-bottom: 0.55rem;
+    }}
     """

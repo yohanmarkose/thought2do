@@ -1,9 +1,10 @@
-"""Voice Input page.
+"""Demo page.
 
-Two-column layout: left side for audio recording + text fallback and
-a Process button; right side for the agent-pipeline progress view
-showing Intent → Decomposition → Dedup → Prioritization stages and
-the resulting task cards with agent reasoning.
+Transparent showcase of the agentic pipeline: record audio or type a
+transcript, then watch the Intent → Decomposition → Dedup →
+Prioritization stages fire in sequence with the resulting task cards
+and agent reasoning. Under the hood, the Assistant tab uses the same
+pipeline — this page exposes its mechanics for demo purposes.
 """
 import re
 from typing import Optional, Tuple
@@ -136,8 +137,8 @@ def render_reasoning_expander(result: dict) -> None:
 
 
 # ---- Page layout ----
-st.markdown("# 🎙️ Voice Input")
-st.caption("Speak your mind — we'll handle the rest.")
+st.markdown("# 🧪 Pipeline Demo")
+st.caption("See the multi-agent pipeline in action — Intent → Decomposition → Dedup → Prioritization.")
 
 col_left, col_right = st.columns([3, 2], gap="large")
 
