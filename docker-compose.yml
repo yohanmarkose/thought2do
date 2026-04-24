@@ -1,0 +1,3 @@
+# Thought2Do — Docker Compose stack.
+# Populated in Phase 15 (Docker & Deployment) per PLAN.md.
+# Services: `backend` (FastAPI :8000) and `frontend` (Streamlit :8501).

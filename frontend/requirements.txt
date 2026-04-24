@@ -1,0 +1,5 @@
+streamlit>=1.38.0
+requests>=2.31.0
+streamlit-webrtc>=0.47.0
+extra-streamlit-components>=0.1.60
+pydub>=0.25.1

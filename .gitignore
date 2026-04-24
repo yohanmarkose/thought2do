@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+node_modules/
+.streamlit/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
