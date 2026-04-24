@@ -103,8 +103,12 @@ def _render_add_task_form(client) -> None:
             description = st.text_area("Description", height=80)
             c1, c2 = st.columns(2)
             with c1:
-                category = st.selectbox("Category", _CATEGORIES)
-                priority = st.selectbox("Priority", ["Medium", "Low", "High", "Critical"])
+                def_cat  = st.session_state.get("default_category", "General")
+                def_prio = st.session_state.get("default_priority", "Medium")
+                category = st.selectbox("Category", _CATEGORIES,
+                                        index=_CATEGORIES.index(def_cat) if def_cat in _CATEGORIES else 0)
+                priority = st.selectbox("Priority", _PRIORITIES,
+                                        index=_PRIORITIES.index(def_prio) if def_prio in _PRIORITIES else 0)
             with c2:
                 deadline_date = st.date_input("Deadline (optional)", value=None)
                 tags_raw = st.text_input("Tags (comma-separated)")

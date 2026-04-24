@@ -63,6 +63,11 @@ def get_custom_css(theme: Dict[str, str]) -> str:
     """
     t = theme
     return f"""
+    /* ---------- Theme transition (smooth color switching) ---------- */
+    .stApp, .stApp *, section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {{
+        transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }}
+
     /* ---------- Base page ---------- */
     .stApp {{
         background-color: {t['bg']};

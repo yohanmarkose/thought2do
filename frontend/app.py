@@ -28,6 +28,9 @@ def _init_session_state() -> None:
         "filter_status": "All",
         "filter_category": "All",
         "filter_priority": "All",
+        "default_category": "General",
+        "default_priority": "Medium",
+        "dashboard_stats": {},
     }
     for key, value in defaults.items():
         st.session_state.setdefault(key, value)

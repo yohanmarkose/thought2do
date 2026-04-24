@@ -101,33 +101,27 @@ def render_task_card(task: dict, *, action: Optional[str] = None) -> None:
 
     status_class = f"badge-status-{status.replace('_', '-')}"
 
-    st.markdown(
-        f"""
-        <div class="task-card {prio_class}">
-            {action_html}
-            <div style="{title_style}">{source_icon} {title}</div>
-            <div>
-                <span class="category-pill">{category}</span>
-                <span class="badge badge-{priority.lower()}">{prio_icon} {priority}</span>
-                <span class="badge {status_class}">{status.replace('_', ' ')}</span>
-                {deadline_html}
-                {tags_html}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    html = (
+        f'<div class="task-card {prio_class}">'
+        f'{action_html}'
+        f'<div style="{title_style}">{source_icon} {title}</div>'
+        f'<div>'
+        f'<span class="category-pill">{category}</span>'
+        f'<span class="badge badge-{priority.lower()}">{prio_icon} {priority}</span>'
+        f'<span class="badge {status_class}">{status.replace("_", " ")}</span>'
+        f'{deadline_html}{tags_html}'
+        f'</div></div>'
     )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_deleted_card(task_id: str) -> None:
     """Placeholder card for a task that was deleted by the pipeline."""
-    st.markdown(
-        f"""
-        <div class="task-card task-card-critical" style="opacity:0.75;">
-            <span style="background:#FF6B6B;color:#fff;padding:2px 9px;
-                         border-radius:999px;font-size:0.7rem;float:right;">🗑️ Deleted</span>
-            <div style="color:#8B949E;font-family:monospace;">id: {task_id}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    html = (
+        f'<div class="task-card task-card-critical" style="opacity:0.75;">'
+        f'<span style="background:#FF6B6B;color:#fff;padding:2px 9px;'
+        f'border-radius:999px;font-size:0.7rem;float:right;">🗑️ Deleted</span>'
+        f'<div style="color:#8B949E;font-family:monospace;">id: {task_id}</div>'
+        f'</div>'
     )
+    st.markdown(html, unsafe_allow_html=True)
