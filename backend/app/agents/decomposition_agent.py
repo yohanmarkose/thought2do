@@ -10,7 +10,7 @@ from typing import Any, Dict
 
 from app.agents import invoke_json_with_tools
 from app.agents.state import AgentState
-from app.agents.tools import resolve_date
+from app.agents.tools import resolve_date, web_search
 from app.prompts.decomposition_prompt import DECOMPOSITION_SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,10 @@ async def decomposition_node(state: AgentState) -> Dict[str, Any]:
         parsed = await invoke_json_with_tools(
             system_prompt,
             user_message,
-            tools=[resolve_date],
+            tools=[resolve_date, web_search],
+            # Enrichment asks may need several searches plus date
+            # resolution across multiple tasks in one utterance.
+            max_tool_iterations=8,
         )
     except Exception as exc:
         logger.exception("Decomposition agent LLM call failed")

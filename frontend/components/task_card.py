@@ -40,6 +40,34 @@ _ACTION_BADGE = {
 }
 
 
+def _description_to_html(text: str) -> str:
+    """Convert plain text (with optional markdown-style bullet lines) to HTML."""
+    lines = text.splitlines()
+    html_parts = []
+    in_list = False
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            continue
+        if stripped.startswith(("- ", "* ", "• ")):
+            if not in_list:
+                html_parts.append('<ul style="margin:0.3rem 0 0.3rem 1.2rem;padding:0;">')
+                in_list = True
+            item = stripped[2:]
+            html_parts.append(f'<li style="margin-bottom:0.2rem;">{item}</li>')
+        else:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            html_parts.append(f'<p style="margin:0.2rem 0;">{stripped}</p>')
+    if in_list:
+        html_parts.append("</ul>")
+    return "".join(html_parts)
+
+
 def _format_deadline(iso_str: Optional[str]) -> Optional[str]:
     """Produce a short human-friendly deadline string; returns None if absent."""
     if not iso_str:
@@ -68,7 +96,7 @@ def _format_deadline(iso_str: Optional[str]) -> Optional[str]:
 
 
 def render_task_card(task: dict, *, action: Optional[str] = None) -> None:
-    """Render one task as an HTML card. `action` surfaces a top-right badge."""
+    """Render one task as an expandable HTML card. `action` surfaces a top-right badge."""
     title = task.get("title") or "(untitled)"
     priority = task.get("priority", "Medium")
     category = task.get("category", "General")
@@ -76,6 +104,7 @@ def render_task_card(task: dict, *, action: Optional[str] = None) -> None:
     status = task.get("status", "pending")
     deadline = _format_deadline(task.get("deadline"))
     tags = task.get("tags") or []
+    description = task.get("description") or ""
 
     prio_class = _PRIORITY_CLASS.get(priority, "task-card-medium")
     prio_icon = _PRIORITY_ICON.get(priority, "🔵")
@@ -101,16 +130,37 @@ def render_task_card(task: dict, *, action: Optional[str] = None) -> None:
 
     status_class = f"badge-status-{status.replace('_', '-')}"
 
+    desc_body = (
+        f'<div style="color:#C9D1D9;">{_description_to_html(description)}</div>'
+        if description else
+        '<span style="color:#6B7785;font-style:italic;">No description</span>'
+    )
+    expand_section = (
+        f'<div style="margin-top:0.6rem;padding-top:0.5rem;'
+        f'border-top:1px solid rgba(255,255,255,0.08);font-size:0.85rem;">'
+        f'{desc_body}'
+        f'</div>'
+    )
+
     html = (
         f'<div class="task-card {prio_class}">'
+        f'<details>'
+        f'<summary style="cursor:pointer;list-style:none;display:block;">'
+        f'<style>summary::-webkit-details-marker{{display:none}}</style>'
         f'{action_html}'
-        f'<div style="{title_style}">{source_icon} {title}</div>'
+        f'<div style="{title_style}">{source_icon} {title}'
+        f'<span style="font-size:0.7rem;color:#8B949E;font-weight:400;margin-left:0.5rem;">▼ details</span>'
+        f'</div>'
         f'<div>'
         f'<span class="category-pill">{category}</span>'
         f'<span class="badge badge-{priority.lower()}">{prio_icon} {priority}</span>'
         f'<span class="badge {status_class}">{status.replace("_", " ")}</span>'
         f'{deadline_html}{tags_html}'
-        f'</div></div>'
+        f'</div>'
+        f'</summary>'
+        f'{expand_section}'
+        f'</details>'
+        f'</div>'
     )
     st.markdown(html, unsafe_allow_html=True)
 

@@ -1,15 +1,23 @@
 """LangChain tools exposed to agent nodes.
 
-Currently just `resolve_date`, backed by the `parsedatetime` library,
-used by the decomposition agent to convert natural-language date
-phrases (e.g. "next Thursday", "end of month", "first of next month",
-"in 3 days", "at 3pm tomorrow") into ISO 8601 datetime strings
-anchored to a given reference moment.
+Two tools are currently available:
+
+- `resolve_date`: Backed by `parsedatetime`, converts natural-language
+  date phrases (e.g. "next Thursday", "end of month", "in 3 days",
+  "at 3pm tomorrow") into ISO 8601 strings anchored to a reference moment.
+
+- `web_search`: Backed by DuckDuckGo (`ddgs`), fetches a short list of
+  relevant web results the decomposition agent can fold into a task
+  description as bullet points (e.g. "add tips for preparing for a
+  dentist appointment", "research how to write a cover letter").
 """
+import logging
 from datetime import datetime, timezone
 
 import parsedatetime
 from langchain_core.tools import tool
+
+logger = logging.getLogger(__name__)
 
 # parsedatetime's Calendar is thread-safe for parsing and expensive to
 # build (it compiles regex tables on init), so instantiate once.
@@ -57,3 +65,69 @@ def resolve_date(phrase: str, anchor_iso: str) -> str:
 
     result = parsed_naive.replace(tzinfo=timezone.utc)
     return result.isoformat()
+
+
+@tool
+def web_search(query: str, max_results: int = 5) -> str:
+    """Search the public web and return a short list of relevant results.
+
+    Use this tool when the user explicitly asks for research, bullet
+    points, preparation tips, links, or background information to fold
+    into a task's description — e.g. "add bullet points on how to
+    prepare for a dentist appointment", "research how to write a cover
+    letter", "add some links about keto recipes to the description".
+
+    Do NOT call this tool:
+    - When the user did not ask for research / bullets / links.
+    - For date/time resolution (use `resolve_date` for that).
+    - For sensitive, private, or medical-advice-specific queries where
+      the answer could mislead the user.
+
+    Args:
+        query: A concise search query (e.g. "how to prepare for dentist
+            appointment", "cover letter tips software engineer").
+        max_results: Number of results to return, clamped to 1–8.
+            Default 5.
+
+    Returns:
+        A plain-text block with each result rendered as
+        `"N. Title\\n   URL: ...\\n   Summary: ..."`, separated by
+        blank lines. If the search yields nothing or errors out, returns
+        a string starting with "ERROR:" — in which case do NOT fabricate
+        bullet points; write the description from the model's own
+        general knowledge and mention that sources were unavailable.
+    """
+    try:
+        from ddgs import DDGS  # type: ignore
+    except ImportError as exc:
+        logger.warning("web_search: ddgs not installed: %s", exc)
+        return "ERROR: web_search unavailable (ddgs not installed)"
+
+    try:
+        n = max(1, min(int(max_results or 5), 8))
+    except (TypeError, ValueError):
+        n = 5
+
+    query = (query or "").strip()
+    if not query:
+        return "ERROR: web_search requires a non-empty query"
+
+    try:
+        with DDGS() as ddgs:
+            hits = list(ddgs.text(query, max_results=n))
+    except Exception as exc:
+        logger.warning("web_search: query %r failed: %s", query, exc)
+        return f"ERROR: web_search failed: {exc}"
+
+    if not hits:
+        return f"ERROR: no results for {query!r}"
+
+    lines: list[str] = []
+    for i, hit in enumerate(hits[:n], start=1):
+        title = (hit.get("title") or "").strip() or "(untitled)"
+        href = (hit.get("href") or hit.get("url") or "").strip()
+        body = (hit.get("body") or hit.get("snippet") or "").strip()
+        if len(body) > 240:
+            body = body[:237].rstrip() + "..."
+        lines.append(f"{i}. {title}\n   URL: {href}\n   Summary: {body}")
+    return "\n\n".join(lines)

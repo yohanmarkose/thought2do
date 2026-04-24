@@ -11,7 +11,7 @@ conversation feels continuous. Each user turn is sent through the same
 """
 import re
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import streamlit as st
 
@@ -72,40 +72,30 @@ def _use_suggestion(phrase: str) -> None:
     st.session_state.chat_input_draft = phrase
 
 
-# ── Summarise pipeline result into a single assistant message ─────────────────
+# ── Extract the assistant message text from the pipeline result ───────────────
 
-def _summarise(result: dict) -> str:
-    created = result.get("tasks_created") or []
-    updated = result.get("tasks_updated") or []
-    deleted = result.get("tasks_deleted") or []
-    queried = result.get("tasks_queried") or []
+def _assistant_text(result: Dict[str, Any]) -> str:
+    """Return the backend's natural-language summary, with a safety fallback.
 
-    parts: List[str] = []
-    if created:
-        titles = ", ".join(f"**{t.get('title', '(untitled)')}**" for t in created[:3])
-        more = f" and {len(created) - 3} more" if len(created) > 3 else ""
-        parts.append(f"✅ Created {len(created)} task{'s' if len(created) != 1 else ''}: {titles}{more}")
-    if updated:
-        titles = ", ".join(f"**{t.get('title', '(untitled)')}**" for t in updated[:3])
-        more = f" and {len(updated) - 3} more" if len(updated) > 3 else ""
-        parts.append(f"✏️ Updated {len(updated)} task{'s' if len(updated) != 1 else ''}: {titles}{more}")
-    if deleted:
-        parts.append(f"🗑️ Deleted {len(deleted)} task{'s' if len(deleted) != 1 else ''}")
-    if queried:
-        if len(queried) == 1:
-            parts.append(f"👁️ Found 1 matching task.")
-        else:
-            parts.append(f"👁️ Found {len(queried)} matching tasks.")
+    The Summary Agent in the backend pipeline now produces a
+    conversational reply (and suggestions) for every pipeline run.
+    We only fall back to a hand-built line when the field is empty —
+    which should only happen on upstream errors that short-circuit the
+    pipeline before the summary node runs."""
+    summary = (result.get("summary") or "").strip()
+    if summary:
+        return summary
 
-    if not parts:
-        # Try to pull a useful line out of the reasoning log.
-        reasoning = result.get("agent_reasoning", "")
-        match = re.search(r"\[intent\]\s+(.+)", reasoning)
-        if match:
-            return f"I understood your request, but nothing needed to change. ({match.group(1).strip()[:140]})"
-        return "I understood your request, but there was nothing to change."
-
-    return "\n\n".join(parts)
+    # Upstream error or totally empty pipeline — surface whatever hint we
+    # have from the reasoning log so the user isn't staring at nothing.
+    reasoning = result.get("agent_reasoning", "")
+    match = re.search(r"\[intent\]\s+(.+)", reasoning)
+    if match:
+        return (
+            "I understood your request, but nothing needed to change. "
+            f"({match.group(1).strip()[:140]})"
+        )
+    return "I understood your request, but there was nothing to change."
 
 
 # ── Run the pipeline for the current input ────────────────────────────────────
@@ -139,7 +129,7 @@ def _submit(transcript: str) -> None:
     else:
         _append(
             "assistant",
-            text=_summarise(result),
+            text=_assistant_text(result),
             result=result,
         )
 
@@ -187,7 +177,7 @@ def _render_chat_history() -> None:
         )
         return
 
-    for msg in msgs:
+    for msg_idx, msg in enumerate(msgs):
         role = msg.get("role")
         text = msg.get("text", "")
         if role == "user":
@@ -211,6 +201,23 @@ def _render_chat_history() -> None:
                     render_deleted_card(tid)
                 for t in queried:
                     render_task_card(t, action="queried")
+
+                # Dynamic suggestions from the Summary Agent — only on the
+                # most recent assistant message to avoid stale chips.
+                suggestions = result.get("suggestions") or []
+                is_latest = (msg_idx == len(msgs) - 1)
+                if suggestions and is_latest:
+                    st.caption("Try next")
+                    chip_cols = st.columns(min(len(suggestions), 3))
+                    for i, phrase in enumerate(suggestions[:3]):
+                        with chip_cols[i]:
+                            st.button(
+                                phrase,
+                                key=f"dyn_suggest_{msg_idx}_{i}",
+                                use_container_width=True,
+                                on_click=_use_suggestion,
+                                args=(phrase,),
+                            )
 
                 reasoning = result.get("agent_reasoning", "")
                 if reasoning:
@@ -299,22 +306,25 @@ with send_col:
         on_click=_queue_submit,
     )
 
-# Quick suggestion chips
-st.caption("Quick ideas")
-suggestion_cols = st.columns(4)
-_SUGGESTIONS = [
-    "What's due this week?",
-    "Add: finish report by Friday (high priority)",
-    "Mark gym task as done",
-    "Show me all Work tasks",
-]
-for i, phrase in enumerate(_SUGGESTIONS):
-    with suggestion_cols[i]:
-        st.button(
-            phrase,
-            key=f"suggest_{i}",
-            use_container_width=True,
-            on_click=_use_suggestion,
-            args=(phrase,),
-        )
+# Quick suggestion chips — starter ideas, shown only for an empty chat.
+# Once a conversation is going, the Summary Agent emits per-message
+# suggestions attached to each assistant reply, which are more relevant.
+if not st.session_state.chat_messages:
+    st.caption("Quick ideas")
+    suggestion_cols = st.columns(4)
+    _SUGGESTIONS = [
+        "What's due this week?",
+        "Add: finish report by Friday (high priority)",
+        "Add bullet points on how to prepare for a dentist appointment",
+        "Show me all Work tasks",
+    ]
+    for i, phrase in enumerate(_SUGGESTIONS):
+        with suggestion_cols[i]:
+            st.button(
+                phrase,
+                key=f"suggest_{i}",
+                use_container_width=True,
+                on_click=_use_suggestion,
+                args=(phrase,),
+            )
 

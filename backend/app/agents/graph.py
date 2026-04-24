@@ -17,6 +17,7 @@ from app.agents.decomposition_agent import decomposition_node
 from app.agents.intent_agent import intent_node
 from app.agents.prioritization_agent import prioritization_node
 from app.agents.state import AgentState
+from app.agents.summary_agent import summary_node
 from app.models.task import TaskCreate, TaskUpdate
 from app.services.task_service import TaskService
 
@@ -256,6 +257,7 @@ def _build_graph(db: AsyncIOMotorDatabase):
     workflow.add_node("dedup", dedup_node)
     workflow.add_node("prioritization", prioritization_node)
     workflow.add_node("execute", _make_execute_node(db))
+    workflow.add_node("summary", summary_node)
 
     workflow.add_edge(START, "intent")
     workflow.add_conditional_edges(
@@ -266,7 +268,8 @@ def _build_graph(db: AsyncIOMotorDatabase):
     workflow.add_edge("decomposition", "dedup")
     workflow.add_edge("dedup", "prioritization")
     workflow.add_edge("prioritization", "execute")
-    workflow.add_edge("execute", END)
+    workflow.add_edge("execute", "summary")
+    workflow.add_edge("summary", END)
     return workflow.compile()
 
 
@@ -298,6 +301,8 @@ def _response_from_actions(
         "tasks_deleted": tasks_deleted,
         "tasks_queried": tasks_queried,
         "agent_reasoning": "\n".join(reasoning_lines),
+        "summary": state.get("summary") or "",
+        "suggestions": state.get("suggestions") or [],
     }
 
 
@@ -323,6 +328,8 @@ async def process_voice_input(
         "reasoning_log": [],
         "current_datetime": datetime.now(timezone.utc).isoformat(),
         "error": None,
+        "summary": None,
+        "suggestions": [],
     }
 
     graph = _build_graph(db)

@@ -47,6 +47,8 @@ class VoiceProcessResponse(BaseModel):
     tasks_deleted: List[str] = []
     tasks_queried: List[TaskResponse] = []
     agent_reasoning: str = ""
+    summary: str = ""
+    suggestions: List[str] = []
 
 
 def _get_service() -> VoiceService:

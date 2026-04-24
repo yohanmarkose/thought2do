@@ -3,7 +3,8 @@
 Defines the shared state object that flows through the LangGraph
 pipeline: transcript, user_id, existing_tasks, intent, extracted_tasks,
 dedup_results, final_tasks, actions_taken, reasoning_log,
-current_datetime, and error fields.
+current_datetime, error, and the final summary/suggestions produced
+by the Summary Agent for the Assistant chat UI.
 """
 from typing import List, Optional, TypedDict
 
@@ -20,3 +21,5 @@ class AgentState(TypedDict):
     reasoning_log: List[str]
     current_datetime: str
     error: Optional[str]
+    summary: Optional[str]
+    suggestions: List[str]

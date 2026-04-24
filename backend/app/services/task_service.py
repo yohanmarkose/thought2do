@@ -189,6 +189,7 @@ class TaskService:
                     "_id": 0,
                     "id": {"$toString": "$_id"},
                     "title": 1,
+                    "description": 1,
                     "category": 1,
                     "priority": 1,
                     "deadline": 1,
