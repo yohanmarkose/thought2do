@@ -9,6 +9,11 @@ Thought2Do is an agentic, voice-driven task management system. You speak natural
 
 ---
 
+## Application Links
+
+- App Link (Front End: Deployed): [https://thought2do.streamlit.app/](https://thought2do.streamlit.app/)
+- GCP Cloud Run(Backend: Deployed):[https://thought2do-backend-60836936585.us-central1.run.app](https://thought2do-backend-60836936585.us-central1.run.app)
+
 ## System Flow
 
 ```
