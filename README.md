@@ -1,10 +1,11 @@
 # Thought2Do
 
+**Done by:** **Yohan Markose**
+
 > **Think it. Say it. Done.**
 
 Thought2Do is an agentic, voice-driven task management system. You speak naturally — a multi-agent LangGraph pipeline processes your utterance through Intent Classification → Task Decomposition → Deduplication → Prioritization and persists structured tasks in MongoDB. The friction of logging a task should be lower than the friction of doing the task. Thought2Do removes that friction entirely.
 
-**Done by:** Yohan Markose
 
 ---
 
