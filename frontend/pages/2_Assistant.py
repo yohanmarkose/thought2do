@@ -248,14 +248,24 @@ with top_right:
     if st.session_state.chat_messages:
         st.button("🧹 Clear", use_container_width=True, on_click=_clear_chat, key="clear_chat_btn")
 
-st.divider()
+st.markdown(
+    '<div class="chat-section-label">💬 Conversation</div>',
+    unsafe_allow_html=True,
+)
 
 # Chat history area
 chat_container = st.container()
 with chat_container:
     _render_chat_history()
 
-st.divider()
+st.markdown(
+    '<div class="input-section-banner">'
+    '<span class="input-section-icon">✍️</span>'
+    '<span class="input-section-title">Your Input</span>'
+    '<span class="input-section-sub">Type or use your voice below</span>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 # Voice recorder + transcribe-only button
 with st.expander("🎙️ Use your voice", expanded=False):

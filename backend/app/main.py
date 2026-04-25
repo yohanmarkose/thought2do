@@ -23,9 +23,16 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Thought2Do API", version="1.0.0")
 
+import os as _os
+
+_CORS_ORIGINS = ["http://localhost:8501"]
+_extra = _os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if _extra:
+    _CORS_ORIGINS += [o.strip() for o in _extra.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501"],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

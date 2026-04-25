@@ -372,4 +372,51 @@ def get_custom_css(theme: Dict[str, str]) -> str:
     .task-card {{
         margin-bottom: 0.55rem;
     }}
+
+    /* ---------- Assistant page section headers ---------- */
+    .chat-section-label {{
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: {t['muted']};
+        margin: 0.25rem 0 0.75rem 0;
+    }}
+    .chat-section-label::after {{
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, {t['muted']}55, transparent);
+    }}
+
+    .input-section-banner {{
+        background: linear-gradient(135deg, {t['secondary_bg']} 0%, {t['card_bg']} 100%);
+        border: 1px solid {t['accent']}44;
+        border-top: 3px solid {t['accent']};
+        border-radius: 0.9rem 0.9rem 0 0;
+        padding: 0.8rem 1.1rem;
+        margin-top: 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }}
+    .input-section-icon {{
+        font-size: 1.15rem;
+    }}
+    .input-section-title {{
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: {t['accent']};
+    }}
+    .input-section-sub {{
+        font-size: 0.78rem;
+        color: {t['muted_text']};
+        margin-left: auto;
+        font-style: italic;
+    }}
     """

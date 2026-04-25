@@ -55,7 +55,7 @@ class APIClient:
     def __init__(self, base_url: Optional[str] = None) -> None:
         self.base_url = (
             base_url
-            or os.environ.get("BACKEND_URL")
+            or "https://thought2do-backend-60836936585.us-central1.run.app"
             or "http://localhost:8000"
         ).rstrip("/")
         self.token: Optional[str] = None

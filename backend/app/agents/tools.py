@@ -71,17 +71,15 @@ def resolve_date(phrase: str, anchor_iso: str) -> str:
 def web_search(query: str, max_results: int = 5) -> str:
     """Search the public web and return a short list of relevant results.
 
-    Use this tool when the user explicitly asks for research, bullet
-    points, preparation tips, links, or background information to fold
-    into a task's description — e.g. "add bullet points on how to
-    prepare for a dentist appointment", "research how to write a cover
-    letter", "add some links about keto recipes to the description".
+    Use this tool whenever the task would benefit from concrete tips,
+    preparation steps, or background information — e.g. "help me prepare
+    for a dentist appointment", "add bullet points on how to write a cover
+    letter", "what do I need for my job interview", "research keto recipes".
 
     Do NOT call this tool:
-    - When the user did not ask for research / bullets / links.
+    - For simple administrative tasks with no useful prep content.
     - For date/time resolution (use `resolve_date` for that).
-    - For sensitive, private, or medical-advice-specific queries where
-      the answer could mislead the user.
+    - For sensitive medical/legal/financial advice requiring a professional.
 
     Args:
         query: A concise search query (e.g. "how to prepare for dentist

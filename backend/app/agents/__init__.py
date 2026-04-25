@@ -78,7 +78,7 @@ async def invoke_json(
 ) -> Dict[str, Any]:
     """Invoke GPT-4o-mini with a system/user pair; parse JSON reply.
 
-    Retries once on parse failure or timeout (per PLAN). Raises
+    Retries once on parse failure or timeout. Raises
     `RuntimeError` if all attempts fail so the caller can write an
     error message into AgentState.
     """
@@ -133,8 +133,8 @@ async def invoke_json_with_tools(
     back as a ToolMessage. When the LLM finally returns content with no
     tool calls, that content is parsed as JSON.
 
-    Retries the whole exchange once on parse failure or timeout (per
-    PLAN). Raises `RuntimeError` if all attempts fail so the caller can
+    Retries the whole exchange once on parse failure or timeout.
+    Raises `RuntimeError` if all attempts fail so the caller can
     write an error message into AgentState.
     """
     tool_map = {t.name: t for t in tools}
@@ -172,7 +172,7 @@ async def invoke_json_with_tools(
                     name = tc.get("name", "")
                     args = tc.get("args", {}) or {}
                     call_id = tc.get("id", "")
-                    logger.debug("Tool call %s(%s)", name, args)
+                    logger.info("Tool call %s(%s)", name, args)
 
                     tool = tool_map.get(name)
                     if tool is None:
@@ -187,7 +187,7 @@ async def invoke_json_with_tools(
                     messages.append(
                         ToolMessage(content=str(content), tool_call_id=call_id)
                     )
-                    logger.debug("Tool %s → %s", name, str(content)[:200])
+                    logger.info("Tool %s → %s", name, str(content)[:200])
             else:
                 raise RuntimeError(
                     f"Exceeded {max_tool_iterations} tool-call iterations"

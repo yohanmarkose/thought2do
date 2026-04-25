@@ -9,6 +9,7 @@ the voice-input results view.
 Phase 10 implements the rendering surface; Phase 11 will extend this
 module with inline complete/edit/delete interactions.
 """
+import re
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -40,6 +41,18 @@ _ACTION_BADGE = {
 }
 
 
+_MD_LINK_RE = re.compile(r'\[([^\]]+)\]\((https?://[^\)]+)\)')
+
+
+def _linkify(text: str) -> str:
+    """Replace markdown [label](url) with HTML anchor tags."""
+    return _MD_LINK_RE.sub(
+        r'<a href="\2" target="_blank" rel="noopener noreferrer" '
+        r'style="color:#58A6FF;">\1</a>',
+        text,
+    )
+
+
 def _description_to_html(text: str) -> str:
     """Convert plain text (with optional markdown-style bullet lines) to HTML."""
     lines = text.splitlines()
@@ -56,13 +69,13 @@ def _description_to_html(text: str) -> str:
             if not in_list:
                 html_parts.append('<ul style="margin:0.3rem 0 0.3rem 1.2rem;padding:0;">')
                 in_list = True
-            item = stripped[2:]
+            item = _linkify(stripped[2:])
             html_parts.append(f'<li style="margin-bottom:0.2rem;">{item}</li>')
         else:
             if in_list:
                 html_parts.append("</ul>")
                 in_list = False
-            html_parts.append(f'<p style="margin:0.2rem 0;">{stripped}</p>')
+            html_parts.append(f'<p style="margin:0.2rem 0;">{_linkify(stripped)}</p>')
     if in_list:
         html_parts.append("</ul>")
     return "".join(html_parts)
